@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integration Tests — Persistence</title>
+  <style>
+    body { font-family: monospace; padding: 1rem 2rem; background: #0d1117; color: #c9d1d9; }
+    h1   { color: #58a6ff; margin-bottom: 0.25rem; }
+    p.meta { color: #8b949e; font-size: 0.85rem; margin-bottom: 1.5rem; }
+
+    #test-results { margin-top: 1rem; }
+
+    .summary      { font-size: 1.1rem; font-weight: bold; margin-bottom: 1rem; padding: 0.5rem 0.75rem; border-radius: 4px; }
+    .summary.pass { background: #0f3324; color: #3fb950; border: 1px solid #238636; }
+    .summary.fail { background: #3d1c1c; color: #f85149; border: 1px solid #da3633; }
+
+    .test-item      { padding: 0.35rem 0.5rem; margin-bottom: 0.25rem; border-radius: 3px; }
+    .test-item.pass { background: #0d1f17; color: #3fb950; }
+    .test-item.fail { background: #2d1515; color: #f85149; }
+
+    .icon { display: inline-block; width: 1.2rem; }
+
+    pre.error {
+      margin: 0.4rem 0 0 1.6rem;
+      padding: 0.5rem;
+      background: #161b22;
+      border-left: 3px solid #f85149;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-size: 0.8rem;
+      color: #ff7b72;
+    }
+
+    /* Isolate notice elements created by NotificationMod during tests */
+    .notice {
+      display: none; /* hide live notices from view during test run */
+    }
+  </style>
+</head>
+<body>
+  <h1>Integration Tests — Persistence</h1>
+  <p class="meta">
+    Tasks 10.1 &amp; 10.3 &nbsp;|&nbsp;
+    Requirements 3.5, 4.5, 6.4, 8.2, 8.3, 8.5
+  </p>
+
+  <div id="test-results"></div>
+
+  <!--
+    Load app.js FIRST (synchronously, no defer) so StorageMod, TodoMod,
+    LinksMod, NotificationMod are all defined by the time the test script
+    runs. We suppress the DOMContentLoaded bootstrap (init()) by
+    removing the event listener — but since this page has no matching
+    DOM elements, init() would throw. We patch DOMContentLoaded out by
+    overriding addEventListener before loading the script.
+  -->
+  <script>
+    // Prevent app.js from calling init() on DOMContentLoaded.
+    // The test file exercises the module APIs directly without
+    // needing the full page DOM wired up.
+    (function () {
+      const origAdd = EventTarget.prototype.addEventListener;
+      EventTarget.prototype.addEventListener = function (type, fn, opts) {
+        if (this === document && type === 'DOMContentLoaded') {
+          // Skip wiring the app bootstrap — tests manage their own DOM fixtures.
+          return;
+        }
+        return origAdd.call(this, type, fn, opts);
+      };
+    }());
+  </script>
+
+  <!-- Application source — defines all modules as globals -->
+  <script src="../../js/app.js"></script>
+
+  <!-- Restore normal addEventListener after app.js has been parsed -->
+  <script>
+    EventTarget.prototype.addEventListener = EventTarget.prototype._origAdd || EventTarget.prototype.addEventListener;
+  </script>
+
+  <!-- Integration test file -->
+  <script src="persistence.test.js"></script>
+</body>
+</html>

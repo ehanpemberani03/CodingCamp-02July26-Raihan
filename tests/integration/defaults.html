@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Integration Test — Default Links</title>
+    <style>
+      body { font-family: sans-serif; max-width: 700px; margin: 2rem auto; padding: 0 1rem; }
+      h1   { font-size: 1.2rem; border-bottom: 1px solid #ccc; padding-bottom: .5rem; }
+      ul   { padding-left: 1.2rem; }
+      li   { margin: .25rem 0; }
+      p    { margin-top: 1rem; font-size: 1rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Integration Test: Default Links (Requirement 6.6)</h1>
+    <div id="test-output">Running…</div>
+
+    <!--
+      Stub DOM nodes required by app.js's init() so the app bootstraps without
+      errors when it fires its own DOMContentLoaded handler.
+      These are hidden and not part of any test assertion.
+    -->
+    <div aria-hidden="true" style="display:none">
+      <p id="greeting-text"></p>
+      <p id="greeting-clock"></p>
+      <p id="greeting-date"></p>
+      <p id="timer-display"></p>
+      <p id="timer-message"></p>
+      <button id="timer-btn-start"></button>
+      <button id="timer-btn-stop"></button>
+      <button id="timer-btn-reset"></button>
+      <ul id="todo-list"></ul>
+      <input id="todo-input" />
+      <button id="todo-add-btn"></button>
+      <!-- links-container is intentionally omitted here;
+           the test creates its own isolated container element -->
+      <div id="links-container"></div>
+      <input id="links-label-input" />
+      <input id="links-url-input" />
+      <button id="links-add-btn"></button>
+    </div>
+
+    <!--
+      Load app.js first so StorageMod, LinksMod, NotificationMod, uuid, etc.
+      are defined before the test file runs.
+      app.js listens for DOMContentLoaded and calls init() with the stub nodes
+      above, which prevents any null-reference errors.
+    -->
+    <script src="../../js/app.js"></script>
+    <script src="defaults.test.js"></script>
+    <script>
+      // Run tests after app.js's own DOMContentLoaded handler has run.
+      // Because scripts are processed in document order and both this listener
+      // and app.js's listener are registered before the event fires, execution
+      // order is deterministic (app.js registered first → runs first).
+      document.addEventListener('DOMContentLoaded', function () {
+        // Small timeout ensures app.js's DOMContentLoaded handler finishes
+        // before we overwrite LinksMod._els and call load().
+        setTimeout(function () {
+          var allPassed = runAllDefaultsTests();
+          DefaultsTests.renderTo(document.getElementById('test-output'));
+          document.title = (allPassed ? '✅' : '❌') + ' Default Links Test';
+        }, 0);
+      });
+    </script>
+  </body>
+</html>

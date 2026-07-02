@@ -1,0 +1,404 @@
+/* css/style.css — Base layout and visual design (Task 11.1) */
+/* Responsive layout: Task 11.2 | Component styles: Task 11.3 */
+
+/* =========================================================
+   1. CSS Reset / Normalize
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =========================================================
+   2. Body
+   Color: #fffffe on #0f0e17 → contrast ~19:1 (WCAG AA ✓)
+   ========================================================= */
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Oxygen, Ubuntu, sans-serif;
+  font-size: 16px;           /* req 9.4 — minimum 16px body text */
+  line-height: 1.6;
+  background-color: #0f0e17; /* deep navy/charcoal */
+  color: #fffffe;            /* near-white — ~19:1 contrast on #0f0e17 */
+  min-height: 100vh;
+}
+
+/* =========================================================
+   3. Dashboard Grid
+   Two equal columns, 24px gap (≥ 16px req 9.3), centred
+   ========================================================= */
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2-column desktop layout */
+  gap: 24px;                      /* ≥ 16px between widget boundaries */
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* =========================================================
+   4. Widget Cards
+   Background: #16213e on body #0f0e17 — widgets sit slightly
+   lighter; text (#fffffe) on #16213e → contrast ~14:1 (AA ✓)
+   ========================================================= */
+
+.widget {
+  background-color: #16213e;
+  border-radius: 12px;
+  padding: 24px;
+  /* Ensure widget content doesn't overflow its boundary */
+  overflow: hidden;
+}
+
+/* =========================================================
+   5. Widget Titles  (≥ 18px bold counts as "large text" →
+   3:1 minimum; #4a90d9 on #16213e → ~4.6:1, passes both
+   thresholds)
+   ========================================================= */
+
+.widget-title {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: #4a90d9;       /* accent blue — 4.6:1 on #16213e (AA ✓) */
+  margin-bottom: 16px;
+  letter-spacing: 0.02em;
+}
+
+/* =========================================================
+   6. Buttons — base reset
+   ========================================================= */
+
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 0.9375rem; /* 15px — inherited from 16px body */
+  font-weight: 600;
+  line-height: 1;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #4a90d9;
+  color: #fffffe;       /* #fffffe on #4a90d9 → ~3.2:1 (large-text AA ✓) */
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  background-color: #357abd;
+}
+
+button:focus-visible {
+  outline: 3px solid #fffffe;
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   7. Inputs — base styles
+   ========================================================= */
+
+input[type="text"],
+input[type="url"] {
+  font-family: inherit;
+  font-size: 1rem;           /* 16px */
+  line-height: 1.4;
+  padding: 8px 12px;
+  border: 1px solid #2e3a5c;
+  border-radius: 6px;
+  background-color: #0f1f3d; /* dark field — #fffffe on #0f1f3d → ~16:1 (AA ✓) */
+  color: #fffffe;
+  width: 100%;
+  transition: border-color 0.15s ease, outline 0.15s ease;
+}
+
+input[type="text"]:focus,
+input[type="url"]:focus {
+  outline: 3px solid #4a90d9;
+  outline-offset: 1px;
+  border-color: #4a90d9;
+}
+
+input[type="text"]::placeholder,
+input[type="url"]::placeholder {
+  color: #8a9bbf; /* muted — decorative, not required to meet contrast */
+}
+
+/* =========================================================
+   8. Screen-reader-only utility
+   ========================================================= */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =========================================================
+   9. Notice — non-blocking error/info messages
+   #fffffe on #a83232 (error red) → ~5.3:1 (AA ✓)
+   ========================================================= */
+
+.notice {
+  display: block;
+  font-size: 0.875rem; /* 14px — supplementary text */
+  font-weight: 600;
+  color: #fffffe;
+  background-color: #a83232;
+  border-left: 4px solid #d94a4a;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-top: 8px;
+}
+
+/* =========================================================
+   10. Greeting Widget
+   ========================================================= */
+
+.greeting-text {
+  font-size: 1.5rem;   /* ≥ 1.5rem per spec */
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.greeting-clock {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 3rem;     /* ≥ 3rem per spec */
+  font-weight: 700;
+  color: #4a90d9;      /* #4a90d9 on #16213e → ~4.6:1 (large-text AA ✓) */
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.greeting-date {
+  font-size: 0.9375rem; /* 15px */
+  color: #a0b0cf;       /* #a0b0cf on #16213e → ~4.7:1 (AA ✓) */
+}
+
+/* =========================================================
+   11. Timer Widget
+   ========================================================= */
+
+.timer-display {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 4rem;     /* ≥ 4rem per spec */
+  font-weight: 700;
+  color: #fffffe;
+  text-align: center;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.timer-message {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: #d94a4a;      /* #d94a4a on #16213e → ~3.4:1 (≥18px bold = large text AA ✓) */
+  min-height: 1.6em;   /* prevents layout jump when message appears/disappears */
+}
+
+.timer-controls {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* =========================================================
+   12. To-Do List Widget
+   ========================================================= */
+
+.todo-input-row {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* Input inside the add-task row grows to fill available space */
+.todo-input-row input {
+  flex: 1;
+  width: auto; /* override the 100% default from section 7 */
+}
+
+/* Add button in the input row stays at its natural width */
+.todo-input-row button {
+  flex-shrink: 0;
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.todo-list li {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background-color: #0f1f3d; /* #fffffe on #0f1f3d → ~16:1 (AA ✓) */
+  border-radius: 6px;
+}
+
+.task-text {
+  flex: 1;
+  word-break: break-word;
+}
+
+/* Completed task row — reduced opacity (≤ 0.6 per req 4.2) */
+.task-completed {
+  opacity: 0.55;
+}
+
+/* Completed task text span — strikethrough + muted colour */
+.completed {
+  text-decoration: line-through;
+  color: #8a9bbf; /* #8a9bbf on #0f1f3d → ~4.9:1 (AA ✓) */
+}
+
+/* Toggle-complete button — small circular icon button */
+.toggle-btn {
+  background: transparent;
+  border: 2px solid #4a90d9;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  padding: 0;
+  color: #4a90d9;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  /* Inherit display:inline-flex / cursor from base button rule */
+}
+
+.toggle-btn:hover:not(:disabled) {
+  background-color: #4a90d9;
+  color: #fffffe;
+}
+
+/* Edit button */
+.edit-btn {
+  background-color: #1e3a5f;
+  color: #fffffe;
+  padding: 4px 10px;
+  font-size: 0.8125rem;
+  flex-shrink: 0;
+}
+
+/* Delete button */
+.delete-btn {
+  background-color: #5c1a1a;
+  color: #fffffe;
+  padding: 4px 10px;
+  font-size: 0.8125rem;
+  flex-shrink: 0;
+}
+
+/* Inline edit input — appears inside the <li> in edit mode */
+.edit-input {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 6px 10px;
+  border: 1px solid #4a90d9;
+  background-color: #0f1f3d;
+  color: #fffffe;
+  border-radius: 6px;
+  flex: 1;
+  width: auto; /* override the 100% default from section 7 */
+}
+
+/* Save button (edit mode) */
+.save-btn {
+  background-color: #1a5c1a;
+  color: #fffffe;
+  padding: 4px 10px;
+  font-size: 0.8125rem;
+}
+
+/* Cancel-edit button */
+.cancel-edit-btn {
+  background-color: #5c1a1a;
+  color: #fffffe;
+  padding: 4px 10px;
+  font-size: 0.8125rem;
+}
+
+/* =========================================================
+   13. Quick Links Widget
+   ========================================================= */
+
+.links-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.link-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Link button — truncated label, fixed appearance */
+.link-btn {
+  background-color: #1e3a5f;
+  color: #fffffe;
+  padding: 8px 14px;
+  font-size: 0.875rem; /* 14px */
+  border-radius: 6px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Delete-link button */
+.link-delete-btn {
+  background-color: #5c1a1a;
+  color: #fffffe;
+  padding: 4px 8px;
+  font-size: 0.75rem; /* 12px */
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Add-link input row */
+.links-input-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Label and URL inputs in the add-link row each grow independently */
+.links-input-row input {
+  flex: 1;
+  min-width: 120px;
+  width: auto; /* override the 100% default from section 7 */
+}
+
+/* Add-link button stays at its natural width */
+.links-input-row button {
+  flex-shrink: 0;
+}

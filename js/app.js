@@ -186,7 +186,9 @@ const GreetingMod = {
     const now = new Date();
     this._els.clock.textContent = this.formatTime(now);
     this._els.date.textContent = this.formatDate(now);
-    this._els.greeting.textContent = this.getGreeting(now.getHours());
+    const name = NameMod.getName();
+    const greetingText = this.getGreeting(now.getHours());
+    this._els.greeting.textContent = name ? `${greetingText}, ${name}!` : greetingText;
   },
 
   /**
@@ -337,6 +339,9 @@ const TodoMod = {
   /** ID of the task currently in edit mode, or null if none. */
   _editingId: null,
 
+  /** Current sort mode: 'date' | 'name' | 'status' */
+  sortBy: 'date',
+
   /**
    * Bind DOM refs and wire event listeners, then load persisted tasks.
    * @param {{ list: HTMLElement, input: HTMLInputElement, addBtn: HTMLButtonElement }} elements
@@ -353,6 +358,18 @@ const TodoMod = {
         this.addTask(input.value);
       }
     });
+
+    // Load saved sort preference
+    this.sortBy = localStorage.getItem('todo_sort') || 'date';
+
+    // Wire sort buttons
+    const sortDateBtn = document.getElementById('sort-date-btn');
+    const sortNameBtn = document.getElementById('sort-name-btn');
+    const sortStatusBtn = document.getElementById('sort-status-btn');
+
+    if (sortDateBtn) sortDateBtn.addEventListener('click', () => this.sortTasks('date'));
+    if (sortNameBtn) sortNameBtn.addEventListener('click', () => this.sortTasks('name'));
+    if (sortStatusBtn) sortStatusBtn.addEventListener('click', () => this.sortTasks('status'));
 
     this.load();
   },
@@ -521,9 +538,11 @@ const TodoMod = {
    */
   render() {
     this._els.list.innerHTML = '';
-    this.tasks.forEach((task) => {
+    const sortedTasks = this.getSortedTasks();
+    sortedTasks.forEach((task) => {
       this._els.list.appendChild(this.renderItem(task));
     });
+    this.updateSortButtons();
   },
 
   /**
@@ -575,6 +594,53 @@ const TodoMod = {
   cancelEdit(id) {
     this._editingId = null;
     this.render();
+  },
+
+  /**
+   * Sort tasks by the given criteria.
+   * @param {'date'|'name'|'status'} mode
+   */
+  sortTasks(mode) {
+    this.sortBy = mode;
+    localStorage.setItem('todo_sort', mode);
+    this.render();
+  },
+
+  /**
+   * Get sorted tasks array based on current sortBy mode.
+   * @returns {Task[]}
+   */
+  getSortedTasks() {
+    const sorted = [...this.tasks];
+
+    if (this.sortBy === 'name') {
+      // Sort alphabetically (case-insensitive)
+      sorted.sort((a, b) => a.text.toLowerCase().localeCompare(b.text.toLowerCase()));
+    } else if (this.sortBy === 'status') {
+      // Sort: incomplete first, then completed
+      sorted.sort((a, b) => {
+        if (a.completed === b.completed) return 0;
+        return a.completed ? 1 : -1;
+      });
+    } else {
+      // Default: sort by date created (newest first)
+      sorted.sort((a, b) => b.createdAt - a.createdAt);
+    }
+
+    return sorted;
+  },
+
+  /**
+   * Update the active state of sort buttons.
+   */
+  updateSortButtons() {
+    const dateBtn = document.getElementById('sort-date-btn');
+    const nameBtn = document.getElementById('sort-name-btn');
+    const statusBtn = document.getElementById('sort-status-btn');
+
+    if (dateBtn) dateBtn.classList.toggle('active', this.sortBy === 'date');
+    if (nameBtn) nameBtn.classList.toggle('active', this.sortBy === 'name');
+    if (statusBtn) statusBtn.classList.toggle('active', this.sortBy === 'status');
   },
 };
 
@@ -780,12 +846,150 @@ const LinksMod = {
   },
 };
 
+/* ==========================================================
+   NAME MODULE — Custom user name
+========================================================== */
+
+const NameMod = (() => {
+
+  const STORAGE_KEY = 'user_name';
+
+  /**
+   * Get the stored user name or empty string
+   */
+  function getName() {
+    return localStorage.getItem(STORAGE_KEY) || '';
+  }
+
+  /**
+   * Save the user name to localStorage
+   */
+  function setName(name) {
+    const trimmed = name.trim().slice(0, 100);
+    if (trimmed) {
+      localStorage.setItem(STORAGE_KEY, trimmed);
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    // Update greeting
+    GreetingMod.tick();
+  }
+
+  /**
+   * Show a modal to get the user's name
+   */
+  function showModal() {
+    const currentName = getName();
+    const newName = prompt('Enter your name:', currentName);
+    
+    if (newName !== null) {
+      setName(newName);
+      NotificationMod.show(
+        document.body,
+        newName.trim() ? `Welcome, ${newName.trim()}!` : 'Name cleared',
+        2000
+      );
+    }
+  }
+
+  /**
+   * Initialize the name module
+   */
+  function init() {
+    const btn = document.getElementById('greeting-name-btn');
+    if (btn) {
+      btn.addEventListener('click', showModal);
+    }
+  }
+
+  return {
+    init,
+    getName,
+    setName,
+  };
+
+})();
+
+/* ==========================================================
+   THEME MODULE
+========================================================== */
+
+const ThemeMod = (() => {
+
+    const STORAGE_KEY = "theme";
+
+    const button = () => document.getElementById("theme-toggle");
+
+    function applyTheme(theme){
+
+        if(theme === "light"){
+            document.body.classList.add("light-mode");
+
+            if(button()) button().textContent = "☀️";
+        }else{
+            document.body.classList.remove("light-mode");
+
+            if(button()) button().textContent = "🌙";
+        }
+
+    }
+
+    function loadTheme(){
+
+        const savedTheme = localStorage.getItem(STORAGE_KEY) || "dark";
+
+        applyTheme(savedTheme);
+
+    }
+
+    function toggleTheme(){
+
+        const isLight =
+            document.body.classList.contains("light-mode");
+
+        const newTheme = isLight ? "dark" : "light";
+
+        localStorage.setItem(STORAGE_KEY,newTheme);
+
+        applyTheme(newTheme);
+
+    }
+
+    function init(){
+
+        console.log("Theme Loaded");
+
+        loadTheme();
+
+        const btn = button();
+
+        if(btn){
+
+            btn.addEventListener("click",toggleTheme);
+
+        }
+
+    }
+
+    return{
+
+        init
+
+    };
+
+})();
+
 /* ─────────────────────────────────────────────
    Application bootstrap
    Wires all modules to their DOM elements on load.
    Requirements: 9.1, 10.2, 10.3
 ───────────────────────────────────────────────── */
 function init() {
+
+  NameMod.init();
+
+  ThemeMod.init();
+
   GreetingMod.init({
     clock:   document.getElementById('greeting-clock'),
     date:    document.getElementById('greeting-date'),
